@@ -4,7 +4,7 @@ import os
 import json
 import glob
 
-openai.api_key = "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"
+openai.api_key = ""
 messages = []
 savepath = "output/output.txt"
 save_dir = "output"
