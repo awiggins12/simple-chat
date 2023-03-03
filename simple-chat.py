@@ -22,8 +22,6 @@ TODO
 * Truncate messages if they exceed 4000 tokens
 """
 
-
-
 def clearChat():
     messages.clear()
     return [None, get_new_filename()]
@@ -109,6 +107,8 @@ css += ".assistant {background-color: rgba(68,70,84,var(--tw-bg-opacity)); color
 css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
 css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
 css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px; font-size:1.2rem;}"
+css += ".dark .chat_container {background-color:rgb(17 24 39 / var(--tw-bg-opacity));}" 
+css += ".dark .user {background-color:#66666d; color: rgb(229 231 235 / var(--tw-text-opacity));}"
 
 with gr.Blocks(css=css, title="Simple Chat") as demo: 
     output = gr.HTML(value=format_message_data)
