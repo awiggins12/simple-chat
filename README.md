@@ -47,3 +47,8 @@ Command prompt will open, type in "simple-chat.py" and click enter.
 After a moment the simple-chat user interface will launch in your web browser.
 
 ![Alt text](/screenshots/simple-chat.PNG?raw=true)
+
+## Known issues
+* Max token length is not being handled, so 4000+ tokens will result in no response
+* No robust error handling
+* I haven't done full time development in 10 years...
