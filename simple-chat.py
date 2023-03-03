@@ -109,7 +109,7 @@ css = ".assistant {background-color:rgba(236,236,241,var(--tw-text-opacity))}"
 css += ".user {background-color: rgba(68,70,84,var(--tw-bg-opacity)); text-align:right; color: rgba(236,236,241,var(--tw-text-opacity));}"
 css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
 css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
-css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px;}"
+css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px; font-size:1.2rem;}"
 
 with gr.Blocks(css=css) as demo: 
     output = gr.HTML(value=format_message_data)
@@ -130,7 +130,7 @@ with gr.Blocks(css=css) as demo:
         with gr.Column(scale=30):
             submit = gr.Button("Submit", variant='primary')
         with gr.Column(scale=1):
-            regenerate = gr.Button(value="regen")
+            regenerate = gr.Button(value="Regenerate")
     
     #Bindings
     submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
@@ -139,4 +139,3 @@ with gr.Blocks(css=css) as demo:
     file_dropdown.change(fn=load_save_file, inputs=file_dropdown, outputs=[output, context, file_name, file_dropdown])
     webbrowser.open("http://localhost:7860/")
 demo.launch()
-
