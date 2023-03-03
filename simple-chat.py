@@ -1,9 +1,13 @@
+#pip install gradio?
 import gradio as gr
+#pip install openai?
 import openai
 import os
 import json
 import glob
 import datetime
+#pip install markdown
+import markdown
 
 openai.api_key = ""
 messages = []
@@ -12,6 +16,7 @@ save_dir = "output"
 
 """
 TODO
+* Fix regen losing the last message
 * Auto-clear the submit box?  
 * Better placeholder text and labels for the system/content
 * Improve UI
@@ -20,7 +25,9 @@ TODO
 * Save re-generated responses
 * Scroll to end of output
 *  Improve error handling of files
+* Order files by most recent
 """
+
 
 
 def clearChat():
@@ -53,16 +60,15 @@ def regenerate_response(context, content, file_name, autosave, autoclear):
     #if the last element in the array is assistant, remove it.
     if len(messages) > 0 and messages[-1]["role"] == "assistant":
         messages.pop()
-        #now check to see if the next to last message is from user, we want to remove that now.
-        if len(messages) > 0 and messages[-1]["role"] == "user":
-            messages.pop()
-    return chat(context, content, file_name, autosave, autoclear)
+
+    return chat(context, None, file_name, autosave, autoclear)
 
 def format_message_data():
-    chat_history = ""
+    chat_history = "<div class='chat_container'>"
     for message in messages[0:]:
         if message["role"] != "system":
-            chat_history += message["role"] + ": " + message["content"].lstrip('\n') + "\n\n"
+            chat_history += "<div class='{}'>{}</div>".format(message["role"],markdown.markdown(message["content"], output_format='html5'))
+    chat_history += "</div>"
     return chat_history
     
 def get_new_filename():
@@ -77,7 +83,8 @@ def chat(context, content, file_name, autosave, autoclear):
         else:
             messages.insert(0, {"role": "system", "content": context})
     
-    messages.append({"role": "user", "content": content})
+    if len(content) > 0:
+        messages.append({"role": "user", "content": content})
 
     response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",
@@ -101,9 +108,16 @@ def chat(context, content, file_name, autosave, autoclear):
             content = ""
     
     return [format_message_data(), content]
-    
-with gr.Blocks() as demo:
-    output = gr.Textbox(label="Output Box", value=format_message_data)
+
+
+css = ".assistant {background-color:rgba(236,236,241,var(--tw-text-opacity))}"
+css += ".user {background-color: rgba(68,70,84,var(--tw-bg-opacity)); text-align:right; color: rgba(236,236,241,var(--tw-text-opacity));}"
+css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
+css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
+css += ".chat_container {background-color:black; padding: 5px; border-radius: 3px; min-height:100px;}"
+
+with gr.Blocks(css=css) as demo: 
+    output = gr.HTML(label="Output Box", value=format_message_data)
     with gr.Row(variant="panel").style(equal_height=False):
         with gr.Column(scale=1):
             clear = gr.Button("New Chat")
