@@ -16,16 +16,10 @@ save_dir = "output"
 
 """
 TODO
-* Fix regen losing the last message
-* Auto-clear the submit box?  
-* Better placeholder text and labels for the system/content
-* Improve UI
-* Convert the output to html?  Then convert markdown to html
-* Edit Response
+* Edit Messages
 * Save re-generated responses
-* Scroll to end of output
-*  Improve error handling of files
 * Order files by most recent
+* Truncate messages if they exceed 4000 tokens
 """
 
 
@@ -61,7 +55,7 @@ def regenerate_response(context, content, file_name, autosave, autoclear):
     if len(messages) > 0 and messages[-1]["role"] == "assistant":
         messages.pop()
 
-    return chat(context, None, file_name, autosave, autoclear)
+    return chat(context, "", file_name, autosave, autoclear)
 
 def format_message_data():
     chat_history = "<div class='chat_container'>"
@@ -114,10 +108,10 @@ css = ".assistant {background-color:rgba(236,236,241,var(--tw-text-opacity))}"
 css += ".user {background-color: rgba(68,70,84,var(--tw-bg-opacity)); text-align:right; color: rgba(236,236,241,var(--tw-text-opacity));}"
 css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
 css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
-css += ".chat_container {background-color:black; padding: 5px; border-radius: 3px; min-height:100px;}"
+css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px;}"
 
 with gr.Blocks(css=css) as demo: 
-    output = gr.HTML(label="Output Box", value=format_message_data)
+    output = gr.HTML(value=format_message_data)
     with gr.Row(variant="panel").style(equal_height=False):
         with gr.Column(scale=1):
             clear = gr.Button("New Chat")
@@ -129,13 +123,15 @@ with gr.Blocks(css=css) as demo:
             autosave = gr.Checkbox(label="Autosave", value=True)
             autoclear = gr.Checkbox( label="Auto-clear input", value=True)
     
-    context = gr.Textbox(lines=1, placeholder="Enter information to instruct how inputs stuff...")
-    content = gr.Textbox(lines=5, placeholder="Text...")
+    context = gr.Textbox(label="Assistant Behavior", lines=1, placeholder="Set the behavior of the assistant (this gives weak results compared to message)...")
+    content = gr.Textbox(label="Message", lines=5)
     with gr.Row(variant="panel"):
         with gr.Column(scale=30):
             submit = gr.Button("Submit", variant='primary')
         with gr.Column(scale=1):
             regenerate = gr.Button(value="regen")
+    
+    #Bindings
     submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
     regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
     clear.click(fn=clearChat,inputs=None, outputs = [output, file_name], show_progress=False)
