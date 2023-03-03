@@ -8,9 +8,8 @@ import glob
 import datetime
 #pip install markdown
 import markdown
-import webbrowser
 
-openai.api_key = ""
+openai.api_key = "PUT KEY HERE"
 messages = []
 savepath = "output/output.txt"
 save_dir = "output"
@@ -105,13 +104,13 @@ def chat(context, content, file_name, autosave, autoclear):
     return [format_message_data(), content]
 
 
-css = ".assistant {background-color:rgba(236,236,241,var(--tw-text-opacity))}"
-css += ".user {background-color: rgba(68,70,84,var(--tw-bg-opacity)); text-align:right; color: rgba(236,236,241,var(--tw-text-opacity));}"
+css = ".user {background-color:rgba(236,236,241,var(--tw-text-opacity)); text-align:right; }"
+css += ".assistant {background-color: rgba(68,70,84,var(--tw-bg-opacity)); color: rgba(236,236,241,var(--tw-text-opacity));}"
 css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
 css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
 css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px; font-size:1.2rem;}"
 
-with gr.Blocks(css=css) as demo: 
+with gr.Blocks(css=css, title="Simple Chat") as demo: 
     output = gr.HTML(value=format_message_data)
     with gr.Row(variant="panel").style(equal_height=False):
         with gr.Column(scale=1):
@@ -137,5 +136,4 @@ with gr.Blocks(css=css) as demo:
     regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
     clear.click(fn=clearChat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=file_dropdown, outputs=[output, context, file_name, file_dropdown])
-    webbrowser.open("http://localhost:7860/")
-demo.launch()
+demo.launch(inbrowser=True)
