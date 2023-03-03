@@ -3,7 +3,7 @@ Simple gradio interface for the ChatGPT API
 ## Current Features
 * Runs locally
 * Saves conversations to your local computer
-* Can load old conversations
+* Can load and continue old conversations
 * Won't force you to re-login or error out until you refresh
 * Cheaper than Plus ($0.0002/1k tokens vs $20/month)
 * [Much higher usage limits](https://platform.openai.com/docs/guides/rate-limits)
