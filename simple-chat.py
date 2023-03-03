@@ -9,6 +9,21 @@ messages = []
 savepath = "output/output.txt"
 save_dir = "output"
 
+"""
+TODO
+1. Re-generate response - DONE
+2. Saving to a different file name
+3. Auto-clear the submit box?  
+4. Better placeholder text and labels for the system/content
+5. Improve UI
+6. Convert the output to html?  Then convert markdown to html
+7. Edit Response
+8. Save re-generated responses
+9. Scroll to end of output
+10. Improve error handling of files
+"""
+
+
 def clearChat():
     messages.clear()
     return None
@@ -34,6 +49,15 @@ def getSaveFiles():
     for file in files:
         file_names.append(file)
     return file_names
+
+def regenerate_response(Context, Content, file_name, autosave):
+    #if the last element in the array is assistant, remove it.
+    if len(messages) > 0 and messages[-1]["role"] == "assistant":
+        messages.pop()
+        #now check to see if the next to last message is from user, we want to remove that now.
+        if len(messages) > 0 and messages[-1]["role"] == "user":
+            messages.pop()
+    return chat(Context, Content, file_name, autosave)
 
 def format_message_data():
     chat_history = ""
@@ -74,17 +98,27 @@ def chat(Context, Content, file_name, autosave):
     return format_message_data()
     
 with gr.Blocks() as demo:
-    output = gr.Textbox(label="Output Box", lines=30, value=format_message_data)
-    with gr.Row():
-        clear = gr.Button("New Chat")
-        file_dropdown = gr.Dropdown(getSaveFiles(), label="Load File")
-        file_name = gr.Textbox(label="Save file name")
-        autosave = gr.Checkbox(label="Autosave")
+    output = gr.Textbox(label="Output Box", value=format_message_data)
+    with gr.Row(variant="panel").style(equal_height=False):
+        with gr.Column(scale=1):
+            clear = gr.Button("New Chat")
+        with gr.Column(scale=2):
+            file_dropdown = gr.Dropdown(getSaveFiles(), label="Load File")
+        with gr.Column(scale=2):            
+            file_name = gr.Textbox(label="Save file name")
+        with gr.Column(scale=1):
+            autosave = gr.Checkbox(label="Autosave")
+            autoclear = gr.Checkbox( label="Auto-clear input", value=True)
     
     Context = gr.Textbox(lines=1, placeholder="Enter information to instruct how inputs stuff...")
     Content = gr.Textbox(lines=5, placeholder="Text...")
-    submit = gr.Button("Submit")
+    with gr.Row(variant="panel"):
+        with gr.Column(scale=30):
+            submit = gr.Button("Submit", variant='primary')
+        with gr.Column(scale=1):
+            regenerate = gr.Button(value="regen")
     submit.click(fn=chat, inputs=[Context, Content, file_name, autosave], outputs = output)
+    regenerate.click(fn=regenerate_response, inputs=[Context, Content, file_name, autosave], outputs = output)
     clear.click(fn=clearChat,inputs=None, outputs = output)
     file_dropdown.change(fn=load_save_file, inputs=file_dropdown, outputs=[output, Context, file_name, file_dropdown])
 
