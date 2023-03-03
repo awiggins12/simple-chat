@@ -32,6 +32,12 @@ In command prompt type "pip install openai" and hit enter.
 
 In command prompt type "pip install markdown" and hit enter.
 
+```
+pip install gradio
+pip install openai
+pip install markdown
+```
+
 ### Generate OpenAI API Key
 
 Go to https://platform.openai.com/account/api-keys and click "Create new secret key" and record the key for later
