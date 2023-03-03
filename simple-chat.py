@@ -8,6 +8,7 @@ import glob
 import datetime
 #pip install markdown
 import markdown
+import webbrowser
 
 openai.api_key = ""
 messages = []
@@ -16,8 +17,14 @@ save_dir = "output"
 
 """
 TODO
-* Edit Messages
+* Auto-clear the submit box?  
+* Better placeholder text and labels for the system/content
+* Improve UI
+* Convert the output to html?  Then convert markdown to html
+* Edit Response
 * Save re-generated responses
+* Scroll to end of output
+* Improve error handling of files
 * Order files by most recent
 * Truncate messages if they exceed 4000 tokens
 """
@@ -136,5 +143,5 @@ with gr.Blocks(css=css) as demo:
     regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
     clear.click(fn=clearChat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=file_dropdown, outputs=[output, context, file_name, file_dropdown])
-
+    webbrowser.open("http://localhost:7860/")
 demo.launch()
