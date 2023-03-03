@@ -1,5 +1,13 @@
 # simple-chat
 Simple gradio interface for the ChatGPT API
+## Current Features
+* Runs locally
+* Saves conversations to your local computer
+* Can load old conversations
+* Won't force you to re-login or error out until you refresh
+* Cheaper than Plus ($0.0002/1k tokens vs $20/month)
+* [Much higher usage limits](https://platform.openai.com/docs/guides/rate-limits)
+* [OpenAI won't use data submitted over the API for training and will only retain the data for 30 days](https://platform.openai.com/docs/guides/chat/faq)
 
 ![Alt text](/screenshots/ui.PNG?raw=true)
 
@@ -48,7 +56,11 @@ After a moment the simple-chat user interface will launch in your web browser.
 
 ![Alt text](/screenshots/simple-chat.PNG?raw=true)
 
+### Quit or restart web page
+
+
 ## Known issues
 * Max token length is not being handled, so 4000+ tokens will result in no response
 * No robust error handling
+* Markdown doesn't always work correctly and new lines are not being added correctly
 * I haven't done full time development in 10 years...
