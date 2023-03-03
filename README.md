@@ -64,3 +64,6 @@ After a moment the simple-chat user interface will launch in your web browser.
 * No robust error handling
 * Markdown doesn't always work correctly and new lines are not being added correctly
 * I haven't done full time development in 10 years...
+
+# Donate
+[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/borge12)
