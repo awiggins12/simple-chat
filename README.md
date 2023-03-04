@@ -33,7 +33,7 @@ In command prompt type "pip install openai" and hit enter.
 In command prompt type "pip install markdown" and hit enter.
 
 ```
-pip install gradio
+pip install gradio==3.16.2
 pip install openai
 pip install markdown
 ```
@@ -64,6 +64,14 @@ After a moment the simple-chat user interface will launch in your web browser.
 
 ### Quit or restart web page
 
+## Troubleshooting
+If you have any of the libraries already installed, I suggest uninstalling and re-installing them.  Specifically, this app works best with an older version of Gradio and I recently updated my instructions above to use that older version.
+
+Running this will install the correct version over any existing versions.
+
+```
+pip install --force-reinstall gradio==3.16.2
+```
 
 ## Known issues
 * Max token length is not being handled, so 4000+ tokens will result in no response
