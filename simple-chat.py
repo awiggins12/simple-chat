@@ -19,15 +19,14 @@ TODO
 * Truncate messages if they exceed 4000 tokens
 """
 
-
-def clearChat():
+def clear_chat():
     messages.clear()
-    return [None, get_new_filename()]
-    
-def load_save_file(value):
-    system = ""
-    filename = ""
+    return [format_message_data(), get_new_filename()]
 
+# I added system and file_name as inputs because when this is firing multiple times the 
+# second time has empty information and if I pass that info in then I can just ignore the other firing
+def load_save_file(value, system, file_name):
+ 
     if (value is not None and len(value) > 0):
         messages.clear()
     
@@ -36,15 +35,15 @@ def load_save_file(value):
         with open(selected_value, 'r') as file:
             json_data = json.load(file)
 
-        filename = save_directory = os.path.basename(selected_value)
+        file_name = save_directory = os.path.basename(selected_value)
         for data in json_data:
             messages.append({"role": data["role"], "content": data["content"]})
             if (data["role"] == "system"):
                 system = data["content"]
 
-    return [format_message_data(), system, filename, None]
+    return [format_message_data(), system, file_name, None]
 
-def getSaveFiles():
+def get_save_files():
     files = glob.glob(save_dir + '/' + "*.txt")
     file_names = []
     for file in files:
@@ -105,7 +104,7 @@ def chat(context, content, file_name, autosave, autoclear):
     if autoclear:
             content = ""
     
-    return [format_message_data(), content]
+    return [format_message_data(), content, get_save_files()]
 
 
 css = "div.user {background-color:rgba(236,236,241,var(--tw-text-opacity)); text-align:right; }"
@@ -122,7 +121,7 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
         with gr.Column(scale=1):
             clear = gr.Button("New Chat")
         with gr.Column(scale=2):
-            file_dropdown = gr.Dropdown(getSaveFiles(), label="Load File")
+            file_dropdown = gr.Dropdown(get_save_files(), label="Load File")
         with gr.Column(scale=2):            
             file_name = gr.Textbox(label="Save file name", value=get_new_filename)
         with gr.Column(scale=1):
@@ -138,8 +137,8 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
             regenerate = gr.Button(value="Regenerate")
     
     #Bindings
-    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
-    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content])
-    clear.click(fn=clearChat,inputs=None, outputs = [output, file_name], show_progress=False)
-    file_dropdown.change(fn=load_save_file, inputs=file_dropdown, outputs=[output, context, file_name, file_dropdown])
+    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content, file_dropdown])
+    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content, file_dropdown])
+    clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
+    file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
 demo.launch(inbrowser=True)
