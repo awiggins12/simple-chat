@@ -33,7 +33,7 @@ In command prompt type "pip install openai" and hit enter.
 In command prompt type "pip install markdown" and hit enter.
 
 ```
-pip install --force-reinstall "gradio==3.16.2"
+pip install gradio==3.16.2
 pip install openai
 pip install markdown
 ```
