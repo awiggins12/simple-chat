@@ -1,12 +1,9 @@
-#pip install gradio?
 import gradio as gr
-#pip install openai?
 import openai
 import os
 import json
 import glob
 import datetime
-#pip install markdown
 import markdown
 
 openai.api_key = "PUT KEY HERE"
@@ -27,17 +24,19 @@ def clearChat():
     return [None, get_new_filename()]
     
 def load_save_file(value):
-    test = []
-    with open(value, 'r') as file:
-        json_data = json.load(file)
-    
     messages.clear()
     system = ""
-    filename = save_directory = os.path.basename(value)
-    for data in json_data:
-        messages.append({"role": data["role"], "content": data["content"]})
-        if (data["role"] == "system"):
-            system = data["content"]
+    filename = ""
+
+    if (value is not None and len(value) > 0):
+        with open(value, 'r') as file:
+            json_data = json.load(file)
+
+        filename = save_directory = os.path.basename(value)
+        for data in json_data:
+            messages.append({"role": data["role"], "content": data["content"]})
+            if (data["role"] == "system"):
+                system = data["content"]
 
     return [format_message_data(), system, filename, None]
 
@@ -91,6 +90,9 @@ def chat(context, content, file_name, autosave, autoclear):
         #Check to make sure the directory exists
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
+        
+        if len(file_name) == 0:
+            file_name = get_new_filename()
         
         #Save the messages to file
         with open(save_dir + '/' + file_name, 'w') as f:
