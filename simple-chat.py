@@ -19,20 +19,24 @@ TODO
 * Truncate messages if they exceed 4000 tokens
 """
 
+
 def clearChat():
     messages.clear()
     return [None, get_new_filename()]
     
 def load_save_file(value):
-    messages.clear()
     system = ""
     filename = ""
 
     if (value is not None and len(value) > 0):
-        with open(value, 'r') as file:
+        messages.clear()
+    
+        selected_value = value[0] if isinstance(value, list) else value
+        
+        with open(selected_value, 'r') as file:
             json_data = json.load(file)
 
-        filename = save_directory = os.path.basename(value)
+        filename = save_directory = os.path.basename(selected_value)
         for data in json_data:
             messages.append({"role": data["role"], "content": data["content"]})
             if (data["role"] == "system"):
@@ -104,8 +108,8 @@ def chat(context, content, file_name, autosave, autoclear):
     return [format_message_data(), content]
 
 
-css = ".user {background-color:rgba(236,236,241,var(--tw-text-opacity)); text-align:right; }"
-css += ".assistant {background-color: rgba(68,70,84,var(--tw-bg-opacity)); color: rgba(236,236,241,var(--tw-text-opacity));}"
+css = "div.user {background-color:rgba(236,236,241,var(--tw-text-opacity)); text-align:right; }"
+css += "div.assistant {background-color: rgba(68,70,84,var(--tw-bg-opacity)); color: rgba(236,236,241,var(--tw-text-opacity));}"
 css += ".user,.assistant {padding: 15px 10px 15px 10px; margin:15px; border-radius: 5px;}"
 css += "code {background-color: black; color: white; margin: 15px 10px 15px 10px; padding: 10px; display: inline-block;}"
 css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)); padding: 5px; border-radius: 3px; min-height:100px; font-size:1.2rem;}"
