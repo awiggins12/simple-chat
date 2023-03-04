@@ -5,8 +5,14 @@ import json
 import glob
 import datetime
 import markdown
+from dotenv import load_dotenv
 
-openai.api_key = "PUT KEY HERE"
+if not os.path.isfile('.env'):
+    raise Exception('The .env file is missing in the project root directory.\nCopy the .env.example file, rename to .env and enter your API Key')
+
+load_dotenv()
+
+openai.api_key = os.environ.get('API_KEY')
 messages = []
 savepath = "output/output.txt"
 save_dir = "output"
