@@ -7,13 +7,6 @@ import datetime
 import markdown
 from dotenv import load_dotenv
 
-
-
-#if not os.path.isfile('.env'):
-    #api_key_set = False
-    #raise Exception('The .env file is missing in the project root directory.\nCopy the .env.example file, rename to .env and enter your API Key')
-
-
 messages = []
 savepath = "output/output.txt"
 save_dir = "output"
@@ -81,7 +74,7 @@ def get_save_files():
         file_names.append(file)
     return file_names
 
-def regenerate_response(context, content, file_name, autosave, autoclear):
+def regenerate_response(context, content, file_name, autosave, autoclear, max_length, temperature, top_p):
     #if the last element in the array is assistant, remove it.
     if len(messages) > 0 and messages[-1]["role"] == "assistant":
         messages.pop()
@@ -101,7 +94,7 @@ def get_new_filename():
     formatted_time = now.strftime("%H%M%S")
     return formatted_time + "_Default.txt"
 
-def chat(context, content, file_name, autosave, autoclear):
+def chat(context, content, file_name, autosave, autoclear, max_length, temperature, top_p):
     if context:
         if len(messages) > 0 and messages[0]["role"] == "system":
             messages[0]["content"] = context
@@ -113,7 +106,10 @@ def chat(context, content, file_name, autosave, autoclear):
 
     response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",
-      messages=messages
+      messages=messages,
+      temperature=temperature,
+      top_p=top_p
+      #max_tokens=max_length
     )
     
     #add the openai response to the memory
@@ -151,7 +147,7 @@ css += ".dark .user {background-color:#66666d; color: rgb(229 231 235 / var(--tw
 with gr.Blocks(css=css, title="Simple Chat") as demo: 
     with gr.Row(visible=(not is_api_key_set())) as api_key_setup:
         with gr.Column(scale=1):
-            api_key_box = gr.Textbox(label="Set the OpenAPI key")
+            api_key_box = gr.Textbox(label="Set the OpenAPI key (visit https://platform.openai.com/account/api-keys to generate a key)")
             submit_api_key = gr.Button("Submit", variant='primary')
             
     output = gr.HTML(value=format_message_data)
@@ -166,7 +162,7 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
         with gr.Column(scale=1):
             autosave = gr.Checkbox(label="Autosave", value=True)
             autoclear = gr.Checkbox( label="Auto-clear input", value=True)
-    
+        
     context = gr.Textbox(label="Assistant Behavior", lines=1, placeholder="Set the behavior of the assistant (this gives weak results compared to message)...")
     content = gr.Textbox(label="Message", lines=5)
     with gr.Row(variant="panel"):
@@ -175,9 +171,17 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
         with gr.Column(scale=1):
             regenerate = gr.Button(value="Regenerate")
     
+    with gr.Accordion(label="Settings:", open=False):
+        with gr.Row():
+            with gr.Column(visible=False):
+                max_length = gr.Slider(minimum=1, maximum=4096, step=1, label="Max Length", value=4096, interactive=True)
+            with gr.Column():
+                temperature = gr.Slider(minimum=0, maximum=1, step=0.01, label="Temperature", info="Controls randomness.  Closer to zero the more deterministic the responses.", value=1, interactive=True)
+                top_p = gr.Slider(minimum=0, maximum=1, step=0.01, label="Top P", info = "", value=1, interactive=True)
+    
     #Bindings
-    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content, file_dropdown])
-    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content, file_dropdown])
+    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p], outputs = [output, content, file_dropdown])
+    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p], outputs = [output, content, file_dropdown])
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
     submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
