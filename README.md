@@ -37,6 +37,12 @@ pip install markdown
 pip install python-dotenv
 ```
 
+If you have cloned the repository (or downloaded requirements.txt) you can simply run:
+
+```
+pip install -r requirements.txt
+```
+
 ### Generate OpenAI API Key
 
 Go to https://platform.openai.com/account/api-keys and click "Create new secret key" and record the key for later
