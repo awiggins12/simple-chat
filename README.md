@@ -48,7 +48,7 @@ To get the file, right click on [this link](https://github.com/borge12/simple-ch
 
 In Windows Explorer navigate to where simple-chat.py is saved.
 
-Open the simple-chat.py in notepad and your OpenAI key in between the quotes
+Make a copy of the .env.example file. Rename the copy to '.env' and open the file in notepad. Enter your API Key.
 
 ![Alt text](/screenshots/addkey.PNG?raw=true)
 
