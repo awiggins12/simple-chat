@@ -24,18 +24,17 @@ Open the Windows Command Prompt by pressing the "Windows" key and typing "Comman
 
 ### Installing Libraries:
 
-In command prompt type "pip install gradio" and hit enter.
+In command prompt type "pip install gradio==3.16.2" and hit enter.
 
 ![Alt text](/screenshots/gradio.PNG?raw=true)
 
-In command prompt type "pip install openai" and hit enter.
-
-In command prompt type "pip install markdown" and hit enter.
+Make sure to run the rest of the commands as well:
 
 ```
 pip install gradio==3.16.2
 pip install openai
 pip install markdown
+pip install python-dotenv
 ```
 
 ### Generate OpenAI API Key
@@ -48,30 +47,38 @@ To get the file, right click on [this link](https://github.com/borge12/simple-ch
 
 In Windows Explorer navigate to where simple-chat.py is saved.
 
-Make a copy of the .env.example file. Rename the copy to '.env' and open the file in notepad. Enter your API Key.
 
-![Alt text](/screenshots/addkey.PNG?raw=true)
-
-Back in Windows Explorer, click in the address bar type "cmd" then enter.
+Click in the address bar type "cmd" then enter.
 
 ![Alt text](/screenshots/cmd.PNG?raw=true)
 
 Command prompt will open, type in "simple-chat.py" and click enter.
 
+![Alt text](/screenshots/simple-chat.PNG?raw=true)
+
 After a moment the simple-chat user interface will launch in your web browser.
 
-![Alt text](/screenshots/simple-chat.PNG?raw=true)
+Copy and paste your OpenAPI key into the prompt at the top of the page.
+
+![Alt text](/screenshots/addkey.PNG?raw=true)
+
 
 ### Quit or restart web page
 
-## Troubleshooting
-If you have any of the libraries already installed, I suggest uninstalling and re-installing them.  Specifically, this app works best with an older version of Gradio and I recently updated my instructions above to use that older version.
+To quit the application, you can hit ctrl+c in command prompt to kill the thread.  Sometimes it will need to be run multiple times.  You can hit the up key to cycle through your recent commands in order to quickly relaunch Simple Chat.  
 
-Running this will install the correct version over any existing versions.
+Alternatively, you can just close command prompt to kill the web server.
+
+## Troubleshooting
+* If you ran into any issues check command prompt for the errors and post them.  I'll try to help you figure out the issues.
+* If you have any of the libraries already installed, I suggest uninstalling and re-installing them.  Specifically, this app works best with an older version of Gradio and I recently updated my instructions above to use that older version.
+** Running this will install the correct version over any existing versions.
 
 ```
 pip install --force-reinstall gradio==3.16.2
 ```
+
+* If for some reason you need to change your Open API key you can either delete the .env file (which will prompt you to enter on the next launch of the app) or you can edit the file directly in your text editor of choice.
 
 ## Known issues
 * Max token length is not being handled, so 4000+ tokens will result in no response
