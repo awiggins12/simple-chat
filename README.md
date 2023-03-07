@@ -37,11 +37,12 @@ pip install markdown
 pip install python-dotenv
 ```
 
-If you have cloned the repository (or downloaded requirements.txt) you can simply run:
+Instead of the above - if you have cloned the repository (or downloaded requirements.txt) you can simply run:
 
 ```
 pip install -r requirements.txt
 ```
+Which will install the libraries in one command rather than multiple.
 
 ### Generate OpenAI API Key
 
