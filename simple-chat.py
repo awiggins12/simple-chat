@@ -7,12 +7,13 @@ import datetime
 import markdown
 from dotenv import load_dotenv
 
-if not os.path.isfile('.env'):
-    raise Exception('The .env file is missing in the project root directory.\nCopy the .env.example file, rename to .env and enter your API Key')
 
-load_dotenv()
 
-openai.api_key = os.environ.get('API_KEY')
+#if not os.path.isfile('.env'):
+    #api_key_set = False
+    #raise Exception('The .env file is missing in the project root directory.\nCopy the .env.example file, rename to .env and enter your API Key')
+
+
 messages = []
 savepath = "output/output.txt"
 save_dir = "output"
@@ -25,6 +26,30 @@ TODO
 * Truncate messages if they exceed 4000 tokens
 """
 
+def is_api_key_set():
+    api_key_set = False
+    if os.path.isfile('.env'):
+        load_dotenv()
+        if os.environ.get('API_KEY') is not None:
+            api_key_set = True
+    return api_key_set
+
+def set_new_api_key(api_key):
+    #Write the api key to the .env file
+    with open('.env', 'w') as f:
+        f.write(f'API_KEY={api_key}')
+        
+    #load the key
+    load_dotenv()
+    set_api_key()
+    #demo.launch(inbrowser=False)
+    return gr.update(visible=False);
+
+def set_api_key():
+    openai.api_key = os.environ.get('API_KEY')
+    api_key_set = True
+    return None;
+    
 def clear_chat():
     messages.clear()
     return [format_message_data(), get_new_filename()]
@@ -112,6 +137,8 @@ def chat(context, content, file_name, autosave, autoclear):
     
     return [format_message_data(), content, get_save_files()]
 
+if is_api_key_set():
+    set_api_key()   
 
 css = "div.user {background-color:rgba(236,236,241,var(--tw-text-opacity)); text-align:right; }"
 css += "div.assistant {background-color: rgba(68,70,84,var(--tw-bg-opacity)); color: rgba(236,236,241,var(--tw-text-opacity));}"
@@ -122,7 +149,13 @@ css += ".dark .chat_container {background-color:rgb(17 24 39 / var(--tw-bg-opaci
 css += ".dark .user {background-color:#66666d; color: rgb(229 231 235 / var(--tw-text-opacity));}"
 
 with gr.Blocks(css=css, title="Simple Chat") as demo: 
+    with gr.Row(visible=(not is_api_key_set())) as api_key_setup:
+        with gr.Column(scale=1):
+            api_key_box = gr.Textbox(label="Set the OpenAPI key")
+            submit_api_key = gr.Button("Submit", variant='primary')
+            
     output = gr.HTML(value=format_message_data)
+    
     with gr.Row(variant="panel").style(equal_height=False):
         with gr.Column(scale=1):
             clear = gr.Button("New Chat")
@@ -147,4 +180,5 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
     regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear], outputs = [output, content, file_dropdown])
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
+    submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
 demo.launch(inbrowser=True)
