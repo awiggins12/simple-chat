@@ -74,12 +74,12 @@ def get_save_files():
         file_names.append(file)
     return file_names
 
-def regenerate_response(context, content, file_name, autosave, autoclear, max_length, temperature, top_p):
+def regenerate_response(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty):
     #if the last element in the array is assistant, remove it.
     if len(messages) > 0 and messages[-1]["role"] == "assistant":
         messages.pop()
 
-    return chat(context, "", file_name, autosave, autoclear)
+    return chat(context, "", file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty)
 
 def format_message_data():
     chat_history = "<div class='chat_container'>"
@@ -94,7 +94,7 @@ def get_new_filename():
     formatted_time = now.strftime("%H%M%S")
     return formatted_time + "_Default.txt"
 
-def chat(context, content, file_name, autosave, autoclear, max_length, temperature, top_p):
+def chat(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty):
     if context:
         if len(messages) > 0 and messages[0]["role"] == "system":
             messages[0]["content"] = context
@@ -108,7 +108,9 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
       model="gpt-3.5-turbo",
       messages=messages,
       temperature=temperature,
-      top_p=top_p
+      top_p=top_p,
+      frequency_penalty=frequency_penalty,
+      presence_penalty=presence_penalty
       #max_tokens=max_length
     )
     
@@ -176,12 +178,15 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
             with gr.Column(visible=False):
                 max_length = gr.Slider(minimum=1, maximum=4096, step=1, label="Max Length", value=4096, interactive=True)
             with gr.Column():
-                temperature = gr.Slider(minimum=0, maximum=1, step=0.01, label="Temperature", info="Controls randomness.  Closer to zero the more deterministic the responses.", value=1, interactive=True)
-                top_p = gr.Slider(minimum=0, maximum=1, step=0.01, label="Top P", info = "", value=1, interactive=True)
+                temperature = gr.Slider(minimum=0, maximum=1, step=0.01, label="Temperature", value=1, interactive=True)
+                top_p = gr.Slider(minimum=0, maximum=1, step=0.01, label="Top P", value=1, interactive=True)
+            with gr.Column():
+                frequency_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Frequency Penalty", info = "", value=0, interactive=True)
+                presence_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Presence Penalty", info = "", value=0, interactive=True)
     
     #Bindings
-    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p], outputs = [output, content, file_dropdown])
-    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p], outputs = [output, content, file_dropdown])
+    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty], outputs = [output, content, file_dropdown])
+    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty], outputs = [output, content, file_dropdown])
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
     submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
