@@ -85,7 +85,7 @@ def format_message_data():
     chat_history = "<div class='chat_container'>"
     for message in messages[0:]:
         if message["role"] != "system":
-            chat_history += "<div class='{}'>{}</div>".format(message["role"],markdown.markdown(message["content"], output_format='html5'))
+            chat_history += "<div onclick='' class='chat_text {}'>{}</div>".format(message["role"],markdown.markdown(message["content"], output_format='html5'))
     chat_history += "</div>"
     return chat_history
     
@@ -146,7 +146,7 @@ css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)
 css += ".dark .chat_container {background-color:rgb(17 24 39 / var(--tw-bg-opacity));}" 
 css += ".dark .user {background-color:#66666d; color: rgb(229 231 235 / var(--tw-text-opacity));}"
 
-with gr.Blocks(css=css, title="Simple Chat") as demo: 
+with gr.Blocks(css=css, title="Simple Chat", js="file=hello.js") as demo: 
     with gr.Row(visible=(not is_api_key_set())) as api_key_setup:
         with gr.Column(scale=1):
             api_key_box = gr.Textbox(label="Set the OpenAPI key (visit https://platform.openai.com/account/api-keys to generate a key)")
@@ -181,9 +181,9 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
                 temperature = gr.Slider(minimum=0, maximum=1, step=0.01, label="Temperature", value=1, interactive=True)
                 top_p = gr.Slider(minimum=0, maximum=1, step=0.01, label="Top P", value=1, interactive=True)
             with gr.Column():
-                frequency_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Frequency Penalty", info = "", value=0, interactive=True)
-                presence_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Presence Penalty", info = "", value=0, interactive=True)
-    
+                frequency_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Frequency Penalty", value=0, interactive=True)
+                presence_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Presence Penalty", value=0, interactive=True)
+        
     #Bindings
     submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty], outputs = [output, content, file_dropdown])
     regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty], outputs = [output, content, file_dropdown])
