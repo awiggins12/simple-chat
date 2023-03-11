@@ -38,6 +38,12 @@ def set_new_api_key(api_key):
     #demo.launch(inbrowser=False)
     return gr.update(visible=False);
 
+def hide():
+    return gr.update(visible=False);
+    
+def show():
+    return gr.update(visible=True);
+
 def set_api_key():
     openai.api_key = os.environ.get('API_KEY')
     api_key_set = True
@@ -82,13 +88,17 @@ def regenerate_response(context, content, file_name, autosave, autoclear, max_le
     return chat(context, "", file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty)
 
 def format_message_data():
+    
     chat_history = "<div class='chat_container'>"
-    for message in messages[0:]:
+    for index, message in enumerate(messages):
         if message["role"] != "system":
-            chat_history += "<div onclick='' class='chat_text {}'>{}</div>".format(message["role"],markdown.markdown(message["content"], output_format='html5'))
+            onclick = "var gradio = document.getElementsByTagName(\"gradio-app\")[0].shadowRoot; var textBox = gradio.querySelector(\"#update_content textarea\"); var inputBox = gradio.querySelector(\"#array_number input\"); var div = gradio.getElementById(\"array_{}\"); inputBox.value = {}; textBox.value = div.textContent || div.innerText || \"\"; const input_event = new Event(\"input\"); inputBox.dispatchEvent(input_event); textBox.dispatchEvent(input_event);".format(index, index)
+            chat_history += "<div id=\"array_{}\" onclick='{}' class='chat_text {}'>{}</div>".format(index, onclick, message["role"],markdown.markdown(message["content"], output_format='html5'))
     chat_history += "</div>"
     return chat_history
-    
+
+ 
+
 def get_new_filename():
     now = datetime.datetime.now()
     formatted_time = now.strftime("%H%M%S")
@@ -135,6 +145,11 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
     
     return [format_message_data(), content, get_save_files()]
 
+def update_array(array_number, update_content):
+    messages[array_number]["content"] = update_content
+    return format_message_data()
+
+
 if is_api_key_set():
     set_api_key()   
 
@@ -146,7 +161,7 @@ css += ".chat_container {background-color:rgb(249 250 251 / var(--tw-bg-opacity)
 css += ".dark .chat_container {background-color:rgb(17 24 39 / var(--tw-bg-opacity));}" 
 css += ".dark .user {background-color:#66666d; color: rgb(229 231 235 / var(--tw-text-opacity));}"
 
-with gr.Blocks(css=css, title="Simple Chat", js="file=hello.js") as demo: 
+with gr.Blocks(css=css, title="Simple Chat") as demo: 
     with gr.Row(visible=(not is_api_key_set())) as api_key_setup:
         with gr.Column(scale=1):
             api_key_box = gr.Textbox(label="Set the OpenAPI key (visit https://platform.openai.com/account/api-keys to generate a key)")
@@ -156,6 +171,8 @@ with gr.Blocks(css=css, title="Simple Chat", js="file=hello.js") as demo:
     
     with gr.Row(variant="panel").style(equal_height=False):
         with gr.Column(scale=1):
+            editor = gr.Button("Editor", elem_id="editor")
+            close_editor = gr.Button("Close Editor", visible=False)
             clear = gr.Button("New Chat")
         with gr.Column(scale=2):
             file_dropdown = gr.Dropdown(get_save_files(), label="Load File")
@@ -167,7 +184,13 @@ with gr.Blocks(css=css, title="Simple Chat", js="file=hello.js") as demo:
         
     context = gr.Textbox(label="Assistant Behavior", lines=1, placeholder="Set the behavior of the assistant (this gives weak results compared to message)...")
     content = gr.Textbox(label="Message", lines=5)
-    with gr.Row(variant="panel"):
+    with gr.Row():
+        update_content = gr.Textbox(label="Update message by clicking on the chat message to edit", lines=5, visible=False, elem_id="update_content")
+        array_number = gr.Number(label="Array Number", visible=False, precision=0, elem_id="array_number")
+    
+    update = gr.Button("Update", visible=False)
+    
+    with gr.Row(variant="panel") as submit_row:
         with gr.Column(scale=30):
             submit = gr.Button("Submit", variant='primary')
         with gr.Column(scale=1):
@@ -190,4 +213,23 @@ with gr.Blocks(css=css, title="Simple Chat", js="file=hello.js") as demo:
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
     submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
+    
+    #actions when clicking the editor button
+    editor.click(fn=hide,outputs=content)
+    editor.click(fn=hide,outputs=submit_row)
+    editor.click(fn=hide,outputs=editor)
+    editor.click(fn=show,outputs=close_editor)
+    editor.click(fn=show,outputs=update)
+    editor.click(fn=show,outputs=update_content)
+    
+    #actions when closing the editor
+    close_editor.click(fn=show,outputs=content)
+    close_editor.click(fn=show,outputs=submit_row)
+    close_editor.click(fn=show,outputs=editor)
+    close_editor.click(fn=hide,outputs=close_editor)
+    close_editor.click(fn=hide,outputs=update)
+    close_editor.click(fn=hide,outputs=update_content)
+    
+    update.click(fn=update_array,inputs=[array_number, update_content],outputs=output)
+    
 demo.launch(inbrowser=True)
