@@ -140,8 +140,7 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
       #max_tokens=max_length
     )
     
-    print(f"Tokens used: {response['usage']['total_tokens']}")
-    print(f"Finish reason: {response['choices'][0]['finish_reason']}")
+    usedTokens = response['usage']['total_tokens']
 
     #add the openai response to the memory
     messages.append(response['choices'][0]['message'])
@@ -162,7 +161,7 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
     if autoclear:
             content = ""
     
-    return [format_message_data(), content, get_save_files()]
+    return [format_message_data(), content, get_save_files(), historyLength, usedTokens ]
 
 def update_array(array_number, update_content):
     messages[array_number]["content"] = update_content
@@ -226,12 +225,17 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
                 frequency_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Frequency Penalty", value=0, interactive=True)
                 presence_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Presence Penalty", value=0, interactive=True)
         with gr.Row():
-            # controls the number of messages in history to include in the context. A hacky way to avoid exceeding the token limit.
+            # controls the number of messages in history to include in the context. A hacky way to avoid exceeding the token limit for now.
             historyLength = gr.Slider(label='Message History Limit', minimum=1, maximum=50, step=1, value=30,)
+            with gr.Column():
+                with gr.Row():
+                    prevGenLen = gr.Number(label='Previous Gen History Limit')
+                    prevTokenTotal = gr.Number(label='Previous Gen Token Total')
+
         
     #Bindings
-    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown])
-    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown])
+    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
+    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
     submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
