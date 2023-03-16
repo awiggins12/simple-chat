@@ -230,7 +230,7 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
             with gr.Column():
                 with gr.Row():
                     prevGenLen = gr.Number(label='Previous Gen History Limit')
-                    prevTokenTotal = gr.Number(label='Previous Gen Token Total')
+                    prevTokenTotal = gr.Number(label='Previous Gen Token Total (Max: 4096)')
 
         
     #Bindings
