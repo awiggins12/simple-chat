@@ -143,8 +143,6 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
       #max_tokens=max_length
     )
     
-    print(response)
-    
     usedTokens = response['usage']['total_tokens']
 
     #add the openai response to the memory
