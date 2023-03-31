@@ -80,12 +80,15 @@ def get_save_files():
         file_names.append(file)
     return file_names
 
-def regenerate_response(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength):
+def get_models():
+    return ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-32k']
+
+def regenerate_response(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength, model):
     #if the last element in the array is assistant, remove it.
     if len(messages) > 0 and messages[-1]["role"] == "assistant":
         messages.pop()
 
-    return chat(context, "", file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength)
+    return chat(context, "", file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength, model)
 
 def format_message_data():
     
@@ -104,7 +107,7 @@ def get_new_filename():
     formatted_time = now.strftime("%H%M%S")
     return formatted_time + "_Default.txt"
 
-def chat(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength):
+def chat(context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength, model):
 
     payload = []
 
@@ -131,7 +134,7 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
         payload.append({"role": "user", "content": content})
 
     response = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
+      model=model,
       messages=payload,
       temperature=temperature,
       top_p=top_p,
@@ -139,6 +142,8 @@ def chat(context, content, file_name, autosave, autoclear, max_length, temperatu
       presence_penalty=presence_penalty
       #max_tokens=max_length
     )
+    
+    print(response)
     
     usedTokens = response['usage']['total_tokens']
 
@@ -226,16 +231,19 @@ with gr.Blocks(css=css, title="Simple Chat") as demo:
                 presence_penalty = gr.Slider(minimum=-2, maximum=2, step=0.01, label="Presence Penalty", value=0, interactive=True)
         with gr.Row():
             # controls the number of messages in history to include in the context. A hacky way to avoid exceeding the token limit for now.
-            historyLength = gr.Slider(label='Message History Limit', minimum=1, maximum=50, step=1, value=30,)
+            historyLength = gr.Slider(label='Message History Limit', minimum=1, maximum=100, step=1, value=30,)
             with gr.Column():
                 with gr.Row():
                     prevGenLen = gr.Number(label='Previous Gen History Limit')
                     prevTokenTotal = gr.Number(label='Previous Gen Token Total (Max: 4096)')
+        with gr.Row():
+            with gr.Column():
+                model = gr.Dropdown(get_models(), label="Model", value="gpt-3.5-turbo")
 
         
     #Bindings
-    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
-    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
+    submit.click(fn=chat, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength, model], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
+    regenerate.click(fn=regenerate_response, inputs=[context, content, file_name, autosave, autoclear, max_length, temperature, top_p, frequency_penalty, presence_penalty, historyLength, model], outputs = [output, content, file_dropdown, prevGenLen, prevTokenTotal])
     clear.click(fn=clear_chat,inputs=None, outputs = [output, file_name], show_progress=False)
     file_dropdown.change(fn=load_save_file, inputs=[file_dropdown, context, file_name], outputs=[output, context, file_name, file_dropdown])
     submit_api_key.click(fn=set_new_api_key, inputs=api_key_box, outputs=api_key_setup)
